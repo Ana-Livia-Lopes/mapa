@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
-  ScrollView, StyleSheet, Image
+  ScrollView, StyleSheet
 } from 'react-native';
 import {
   getAuth, updateEmail, updatePassword,
@@ -13,8 +13,6 @@ import {
 import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { getApp } from 'firebase/app';
 import { useNavigation } from '@react-navigation/native';
-import * as ImagePicker from 'expo-image-picker';
-import s3 from '../../awsConfig';
 import '../../firebaseConfig';
 
 export default function CadastroUsuario() {
@@ -23,7 +21,6 @@ export default function CadastroUsuario() {
   const [novoEmail, setNovoEmail] = useState('');
   const [user, setUser] = useState(null);
   const [nome, setNome] = useState('');
-  const [fotoPerfil, setFotoPerfil] = useState(null);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -42,7 +39,6 @@ export default function CadastroUsuario() {
           if (docSnap.exists()) {
             const data = docSnap.data();
             setNome(data.nome || '');
-            setFotoPerfil(data.fotoPerfil || null);
           } else {
             console.log('Usuário não encontrado no Firestore');
           }
@@ -53,75 +49,11 @@ export default function CadastroUsuario() {
       } else {
         setUser(null);
         setNome('');
-        setFotoPerfil(null);
       }
     });
 
     return unsubscribe;
   }, []);
-
-  const escolherNovaFoto = async () => {
-    if (!senhaAtual) {
-      window.alert('Digite sua senha atual para alterar a foto.');
-      return;
-    }
-
-    const auth = getAuth();
-    const user = auth.currentUser;
-
-    try {
-      const credential = EmailAuthProvider.credential(user.email, senhaAtual);
-      await reauthenticateWithCredential(user, credential);
-
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        window.alert('Precisamos acessar sua galeria.');
-        return;
-      }
-
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 1,
-      });
-
-      if (!result.canceled) {
-        try {
-          const file = result.assets[0];
-          const response = await fetch(file.uri);
-          const blob = await response.blob();
-          const filename = `perfil/${user.uid}-${Date.now()}.jpg`;
-
-          const params = {
-            Bucket: 'bucket-storage-senai-9',
-            Key: filename,
-            Body: blob,
-            ContentType: 'image/jpeg',
-          };
-
-          const imageUrl = await new Promise((resolve, reject) => {
-            s3.upload(params, (err, data) => {
-              if (err) reject(err);
-              else resolve(data.Location);
-            });
-          });
-
-          setFotoPerfil(imageUrl);
-          const db = getFirestore(getApp());
-          await updateDoc(doc(db, 'usuarios', user.uid), { fotoPerfil: imageUrl });
-
-          window.alert('Foto de perfil atualizada!');
-
-        } catch (error) {
-          console.error('Erro ao enviar imagem:', error);
-          window.alert('Falha no upload da imagem de perfil.');
-        }
-      }
-
-    } catch (error) {
-      window.alert('Senha incorreta. Não foi possível alterar a foto.');
-      console.log('Erro ao reautenticar:', error);
-    }
-  };
 
   const atualizarNome = async () => {
     if (!user) return;
@@ -132,7 +64,7 @@ export default function CadastroUsuario() {
       await updateDoc(userRef, { nome });
     } catch (error) {
       console.error('Erro ao atualizar nome:', error);
-      window.alert('Não foi possível atualizar o nome.');
+      alert('Não foi possível atualizar o nome.');
     }
   };
 
@@ -141,7 +73,7 @@ export default function CadastroUsuario() {
     const user = auth.currentUser;
 
     if (!user) {
-      window.alert('Nenhum usuário autenticado.');
+      alert('Nenhum usuário autenticado.');
       return;
     }
 
@@ -153,10 +85,10 @@ export default function CadastroUsuario() {
       if (novaSenha) await updatePassword(user, novaSenha);
       if (nome) await atualizarNome();
 
-      window.alert('Credenciais atualizadas com sucesso!');
+      alert('Credenciais atualizadas com sucesso!');
     } catch (error) {
       console.error('Erro ao atualizar credenciais:', error);
-      window.alert(error.message);
+      alert(error.message);
     }
   };
 
@@ -165,26 +97,14 @@ export default function CadastroUsuario() {
       await signOut(getAuth());
       navigation.navigate('Login');
     } catch (error) {
-      window.alert('Não foi possível sair.');
+      alert('Não foi possível sair.');
     }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Box de perfil */}
       <View style={styles.card}>
         <Text style={styles.title}>Perfil do usuário</Text>
-
-        {fotoPerfil ? (
-          <Image
-            source={{ uri: fotoPerfil }}
-            style={styles.profileImage}
-          />
-        ) : (
-          <View style={styles.placeholderImage}>
-            <Text style={styles.placeholderText}>Sem Foto</Text>
-          </View>
-        )}
 
         <View style={styles.infoBox}>
           <Text style={styles.infoLabel}>Nome:</Text>
@@ -201,7 +121,6 @@ export default function CadastroUsuario() {
         </TouchableOpacity>
       </View>
 
-      {/* Box de edição */}
       <View style={styles.card}>
         <Text style={styles.title}>Editar credenciais</Text>
 
@@ -236,10 +155,6 @@ export default function CadastroUsuario() {
           secureTextEntry
           placeholderTextColor="#999"
         />
-
-        <TouchableOpacity onPress={escolherNovaFoto} style={styles.updateButton}>
-          <Text style={styles.buttonText}>Alterar Foto de Perfil</Text>
-        </TouchableOpacity>
 
         <TouchableOpacity onPress={atualizarCredenciais} style={styles.updateButton}>
           <Text style={styles.buttonText}>Atualizar credenciais</Text>
@@ -310,26 +225,5 @@ const styles = StyleSheet.create({
   infoValue: {
     color: '#4c1d95',
     fontSize: 16,
-  },
-  profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    alignSelf: 'center',
-    marginBottom: 15,
-  },
-  placeholderImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#d8b4fe',
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'center',
-    marginBottom: 15,
-  },
-  placeholderText: {
-    color: '#fff',
-    fontWeight: 'bold',
   },
 });
