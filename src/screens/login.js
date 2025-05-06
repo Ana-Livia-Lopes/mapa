@@ -2,11 +2,9 @@
 // Isadora Gomes da Silva nº9 DS
 
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Pressable, Image } from 'react-native';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { getApp } from 'firebase/app';
-
-import '../../firebaseConfig'; // Inicializa o Firebase
+import { View, Text, TextInput, StyleSheet, Pressable, Image, Alert } from 'react-native';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebaseConfig'; 
 
 const RealizarLogin = ({ navigation }) => {
     const [email, setEmail] = useState('');
@@ -15,22 +13,20 @@ const RealizarLogin = ({ navigation }) => {
 
     const TentarLogar = async () => {
         if (!email || !password) {
-            alert("Preencha todos os campos");
+            Alert.alert("Atenção", "Preencha todos os campos");
             return;
         }
 
         setLoading(true);
-        const auth = getAuth(getApp());
         try {
             await signInWithEmailAndPassword(auth, email, password);
             navigation.reset({
                 index: 0,
                 routes: [{ name: 'Perfil' }],
-              });
-              
+            });
         } catch (error) {
             console.error('Erro ao fazer login:', error.message);
-            alert("Email ou senha inválidos");
+            Alert.alert("Erro", "Email ou senha inválidos");
         } finally {
             setLoading(false);
         }
@@ -39,7 +35,7 @@ const RealizarLogin = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.efeitoBranco}>
-            <Image source={require("../../assets/logo.png")} style={styles.imagem} />
+                <Image source={require("../../assets/logo.png")} style={styles.imagem} />
                 <Text style={styles.title}>Login</Text>
 
                 <TextInput
@@ -114,7 +110,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
-    imagem:{
+    imagem: {
         marginBottom: 10,
         width: 200,
         height: 200

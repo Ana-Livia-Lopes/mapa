@@ -25,7 +25,7 @@ const RouteScreen = ({ route }) => {
             limit: 1,
           },
           headers: {
-            'User-Agent': 'MeuAppDeRotas/1.0 (meuemail@exemplo.com)', // Substitua por algo seu
+            'User-Agent': 'MeuAppmapa/1.0 (isasilvacpv@gmail.com)', // Substitua por algo seu
           },
         });
 
