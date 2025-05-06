@@ -71,7 +71,7 @@ export default function CadastroUsuario() {
 
     try {
       const credential = EmailAuthProvider.credential(user.email, senhaAtual);
-      await reauthenticateWithCredential(user, credential); // Reautenticar o usuário
+      await reauthenticateWithCredential(user, credential);
 
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
