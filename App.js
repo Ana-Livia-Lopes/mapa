@@ -1,25 +1,28 @@
 // Ana Lívia dos Santos Lopes nº1 DS
 // Isadora Gomes da Silva nº 9
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import Home from './src/screens/home';
 import Perfil from './src/screens/perfil';
 import Login from './src/screens/login';
 
-
-const Drawer = createDrawerNavigator();
-
+const Tab = createBottomTabNavigator();
 
 const App = () => (
-      <NavigationContainer>
-        <Drawer.Navigator initialRouteName='Login' >
-          <Drawer.Screen name="Home" component={Home} />
-          <Drawer.Screen name="Perfil" component={Perfil} />
-          <Drawer.Screen name="Login" component={Login} options={{ headerShown: false, drawerItemStyle: { display: 'none' } }}/>
-        </Drawer.Navigator>
-      </NavigationContainer>
-  );
-  export default App;
+  <NavigationContainer>
+    <Tab.Navigator initialRouteName='Login' screenOptions={{ headerShown: false }}>
+      <Tab.Screen 
+        name="Login" 
+        component={Login} 
+        options={{ tabBarStyle: { display: 'none' }, tabBarButton: () => null }} 
+      />
+      <Tab.Screen name="Home" component={Home} />
+      <Tab.Screen name="Perfil" component={Perfil} />
+    </Tab.Navigator>
+  </NavigationContainer>
+);
+
+export default App;
