@@ -22,7 +22,7 @@ export default function HomeScreen({ navigation }) {
 
   const handleNavigate = () => {
     if (!destination || !location) return;
-    navigation.navigate('Route', { destination, origin: location });
+    navigation.navigate('Rotas', { destination, origin: location });
   };
 
   return (

@@ -64,7 +64,7 @@ const RouteScreen = ({ route }) => {
         };
 
         const headers = {
-          Authorization: '5b3ce3597851110001cf6248898f327f00a1406c81f83dfe2de32f3d', // Substitua por sua chave da ORS
+          Authorization: '5b3ce3597851110001cf62485059845a35cc45f793b0d39c2950e693', // Substitua por sua chave da ORS
           'Content-Type': 'application/json',
         };
 
@@ -103,7 +103,7 @@ const RouteScreen = ({ route }) => {
   if (loading || !destCoords) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color="#7338a0" />
         <Text>Carregando rota...</Text>
       </View>
     );

@@ -4,6 +4,8 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { FontAwesome5 } from '@expo/vector-icons';
+
 
 import HomeScreen from './src/screens/home';
 import Perfil from './src/screens/perfil';
@@ -14,15 +16,30 @@ const Tab = createBottomTabNavigator();
 
 const App = () => (
   <NavigationContainer>
-    <Tab.Navigator initialRouteName='Perfil' screenOptions={{ headerShown: false }}>
+    <Tab.Navigator initialRouteName='Home' screenOptions={{ headerShown: false }}>
       <Tab.Screen 
         name="Login" 
         component={Login} 
         options={{ tabBarStyle: { display: 'none' }, tabBarButton: () => null }} 
       />
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Perfil" component={Perfil} />
-      <Tab.Screen name="Rotas" component={RouteScreen} />
+      <Tab.Screen name="Home" component={HomeScreen} options={{
+    tabBarIcon: ({ color, size }) => (
+      <FontAwesome5 name="map-marker-alt" size={size} color={color} />
+    ),
+  }}
+  />
+      <Tab.Screen name="Perfil" component={Perfil} options={{
+    tabBarIcon: ({ color, size }) => (
+      <FontAwesome5 name="user" size={size} color={color} />
+    ),
+  }}
+       />
+      <Tab.Screen name="Rotas" component={RouteScreen} options={{
+    tabBarIcon: ({ color, size }) => (
+      <FontAwesome5 name="route" size={size} color={color} />
+    ),
+  }}
+      />
     </Tab.Navigator>
   </NavigationContainer>
 );
