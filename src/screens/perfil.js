@@ -1,104 +1,36 @@
 // Ana Lívia dos Santos Lopes nº1 DS
 // Isadora Gomes da Silva nº 9
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
-  ScrollView, StyleSheet
+  ScrollView, StyleSheet, Alert
 } from 'react-native';
-import {
-  getAuth, updateEmail, updatePassword,
-  EmailAuthProvider, reauthenticateWithCredential, signOut, onAuthStateChanged
-} from 'firebase/auth';
-import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
-import { getApp } from 'firebase/app';
 import { useNavigation } from '@react-navigation/native';
-import '../../firebaseConfig';
 
 export default function CadastroUsuario() {
   const [novaSenha, setNovaSenha] = useState('');
   const [senhaAtual, setSenhaAtual] = useState('');
-  const [novoEmail, setNovoEmail] = useState('');
-  const [user, setUser] = useState(null);
-  const [nome, setNome] = useState('');
+  const [novoEmail, setNovoEmail] = useState('sesi@gmail.com');
+  const [nome, setNome] = useState('sesi');
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const auth = getAuth(getApp());
-
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        setNovoEmail(currentUser.email);
-
-        try {
-          const db = getFirestore(getApp());
-          const docRef = doc(db, 'usuarios', currentUser.uid);
-          const docSnap = await getDoc(docRef);
-
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            setNome(data.nome || '');
-          } else {
-            console.log('Usuário não encontrado no Firestore');
-          }
-        } catch (error) {
-          console.log('Erro ao buscar dados:', error);
-        }
-
-      } else {
-        setUser(null);
-        setNome('');
-      }
-    });
-
-    return unsubscribe;
-  }, []);
-
-  const atualizarNome = async () => {
-    if (!user) return;
-
-    try {
-      const db = getFirestore(getApp());
-      const userRef = doc(db, 'usuarios', user.uid);
-      await updateDoc(userRef, { nome });
-    } catch (error) {
-      console.error('Erro ao atualizar nome:', error);
-      alert('Não foi possível atualizar o nome.');
-    }
-  };
-
-  const atualizarCredenciais = async () => {
-    const auth = getAuth();
-    const user = auth.currentUser;
-
-    if (!user) {
-      alert('Nenhum usuário autenticado.');
+  const atualizarCredenciais = () => {
+    if (!senhaAtual) {
+      Alert.alert('Erro', 'Digite sua senha atual');
       return;
     }
 
-    try {
-      const credential = EmailAuthProvider.credential(user.email, senhaAtual);
-      await reauthenticateWithCredential(user, credential);
-
-      if (novoEmail) await updateEmail(user, novoEmail);
-      if (novaSenha) await updatePassword(user, novaSenha);
-      if (nome) await atualizarNome();
-
-      alert('Credenciais atualizadas com sucesso!');
-    } catch (error) {
-      console.error('Erro ao atualizar credenciais:', error);
-      alert(error.message);
-    }
+    // Simulando atualização
+    Alert.alert('Sucesso', 'Credenciais atualizadas com sucesso!');
+    setSenhaAtual('');
+    setNovaSenha('');
   };
 
-  const handleLogout = async () => {
-    try {
-      await signOut(getAuth());
-      navigation.navigate('Login');
-    } catch (error) {
-      alert('Não foi possível sair.');
-    }
+  const handleLogout = () => {
+    // Simulando logout
+    Alert.alert('Logout', 'Você saiu com sucesso!');
+    navigation.navigate('Login');
   };
 
   return (
@@ -108,12 +40,12 @@ export default function CadastroUsuario() {
 
         <View style={styles.infoBox}>
           <Text style={styles.infoLabel}>Nome:</Text>
-          <Text style={styles.infoValue}>{nome || 'Não informado'}</Text>
+          <Text style={styles.infoValue}>{nome}</Text>
         </View>
 
         <View style={styles.infoBox}>
           <Text style={styles.infoLabel}>Email:</Text>
-          <Text style={styles.infoValue}>{user?.email || '---'}</Text>
+          <Text style={styles.infoValue}>{novoEmail}</Text>
         </View>
 
         <TouchableOpacity onPress={handleLogout} style={styles.updateButton}>
@@ -121,45 +53,7 @@ export default function CadastroUsuario() {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.card}>
-        <Text style={styles.title}>Editar credenciais</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Nome"
-          value={nome}
-          onChangeText={setNome}
-          placeholderTextColor="#999"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Senha Atual"
-          value={senhaAtual}
-          onChangeText={setSenhaAtual}
-          secureTextEntry
-          placeholderTextColor="#999"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Novo Email"
-          value={novoEmail}
-          onChangeText={setNovoEmail}
-          keyboardType="email-address"
-          placeholderTextColor="#999"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Nova Senha"
-          value={novaSenha}
-          onChangeText={setNovaSenha}
-          secureTextEntry
-          placeholderTextColor="#999"
-        />
-
-        <TouchableOpacity onPress={atualizarCredenciais} style={styles.updateButton}>
-          <Text style={styles.buttonText}>Atualizar credenciais</Text>
-        </TouchableOpacity>
-      </View>
     </ScrollView>
   );
 }

@@ -1,68 +1,71 @@
-// Ana Lívia dos Santos Lopes nº1 DS
-// Isadora Gomes da Silva nº9 DS
-
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Pressable, Image, Alert } from 'react-native';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebaseConfig'; 
+import { View, Text, TextInput, StyleSheet, Pressable, Image, Alert, KeyboardAvoidingView, Platform } from 'react-native'; // Adicionando as importações necessárias
 
 const RealizarLogin = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const TentarLogar = async () => {
+    const TentarLogar = () => {
         if (!email || !password) {
             Alert.alert("Atenção", "Preencha todos os campos");
             return;
         }
 
         setLoading(true);
-        try {
-            await signInWithEmailAndPassword(auth, email, password);
-            navigation.reset({
-                index: 0,
-                routes: [{ name: 'Perfil' }],
-            });
-        } catch (error) {
-            console.error('Erro ao fazer login:', error.message);
-            Alert.alert("Erro", "Email ou senha inválidos");
-        } finally {
+
+        const emailCorreto = "sesi@gmail.com";
+        const senhaCorreta = "707070";
+
+        setTimeout(() => {
+            if (email === emailCorreto && password === senhaCorreta) {
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Perfil' }],
+                });
+            } else {
+                Alert.alert("Erro", "Email ou senha inválidos");
+            }
             setLoading(false);
-        }
+        }, 1000);
     };
 
     return (
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+                style={{ flex: 1 }}
+            >
         <View style={styles.container}>
-            <View style={styles.efeitoBranco}>
-                <Image source={require("../../assets/logo.png")} style={styles.imagem} />
-                <Text style={styles.title}>Login</Text>
+                <View style={styles.efeitoBranco}>
+                    <Image source={require("../../assets/logo.png")} style={styles.imagem} />
+                    <Text style={styles.title}>Login</Text>
 
-                <TextInput
-                    placeholder="Email"
-                    onChangeText={setEmail}
-                    value={email}
-                    style={styles.input}
-                    placeholderTextColor="#999999"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                />
-                <TextInput
-                    placeholder="Senha"
-                    onChangeText={setPassword}
-                    value={password}
-                    style={styles.input}
-                    secureTextEntry={true}
-                    placeholderTextColor="#999999"
-                />
+                    <TextInput
+                        placeholder="Email"
+                        onChangeText={setEmail}
+                        value={email}
+                        style={styles.input}
+                        placeholderTextColor="#999999"
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                    />
+                    <TextInput
+                        placeholder="Senha"
+                        onChangeText={setPassword}
+                        value={password}
+                        style={styles.input}
+                        secureTextEntry={true}
+                        placeholderTextColor="#999999"
+                    />
 
-                <Pressable style={styles.botao} onPress={TentarLogar} disabled={loading}>
-                    <Text style={styles.botaoTexto}>
-                        {loading ? 'Carregando...' : 'Entrar'}
-                    </Text>
-                </Pressable>
+                    <Pressable style={styles.botao} onPress={TentarLogar} disabled={loading}>
+                        <Text style={styles.botaoTexto}>
+                            {loading ? 'Carregando...' : 'Entrar'}
+                        </Text>
+                    </Pressable>
+                </View>
             </View>
-        </View>
+        </KeyboardAvoidingView>
     );
 };
 
